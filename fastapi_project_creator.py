@@ -14,6 +14,7 @@ def create_fastapi_project(project_name):
     ]
     
     files = [
+        os.path.join(project_name, 'app', '__init__.py'),
         os.path.join(project_name, 'app', 'main.py'),
         os.path.join(project_name, 'app', 'models.py'),
         os.path.join(project_name, 'app', 'database.py'),
@@ -21,6 +22,7 @@ def create_fastapi_project(project_name):
         os.path.join(project_name, 'app', 'config.py'),
         os.path.join(project_name, 'app', 'oauth2.py'),
         os.path.join(project_name, 'app', 'utils.py'),
+        os.path.join(project_name, 'routers', '__init__.py'),
         os.path.join(project_name, '.dockerignore'),
         os.path.join(project_name, 'DockerFile'),
         os.path.join(project_name, 'docker-compose.yml'),
