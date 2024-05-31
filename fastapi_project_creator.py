@@ -13,6 +13,7 @@ def create_fastapi_project(project_name):
         project_name,
         os.path.join(project_name, 'app'),
         os.path.join(project_name, 'app', 'routers'),
+        os.path.join(project_name, 'tests'),
     ]
 
     files = [
@@ -25,6 +26,8 @@ def create_fastapi_project(project_name):
         os.path.join(project_name, 'app', 'oauth2.py'),
         os.path.join(project_name, 'app', 'utils.py'),
         os.path.join(project_name, 'app', 'routers', '__init__.py'),
+        os.path.join(project_name, 'tests', '__init__.py'),
+        os.path.join(project_name, 'tests', 'database.py'),
         os.path.join(project_name, '.dockerignore'),
         os.path.join(project_name, 'DockerFile'),
         os.path.join(project_name, 'docker-compose.yml'),
@@ -248,6 +251,56 @@ DATABASE_USERNAME=""
     
     write_out_to_file(filename, code_content)
 
+def fill_in_tests_database_file():
+    code_content="""from fastapi.testclient import TestClient
+import pytest
+from app.main import app
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.config import settings
+from app.database import get_db, Base
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}_test"
+
+# Responsible for establishing the connection to the database
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+# To talk to the database, you have to make a session
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine)
+
+
+@pytest.fixture
+def session():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def client(session):
+    def override_get_db():
+        try:
+            yield session
+        finally:
+            session.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    yield TestClient(app)
+
+    """
+    
+    #Write out to file
+    filename = os.path.join(project_name, 'tests','database.py')
+    
+    write_out_to_file(filename, code_content)
+
 
 fill_in_main_file()
 fill_in_models_file()
@@ -256,5 +309,6 @@ fill_in_config_file()
 fill_in_ouath2_file()
 fill_in_utils_file()
 fill_in_env_file()
+fill_in_tests_database_file()
 
 print("Files have been pre-populated with standard content")
