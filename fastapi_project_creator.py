@@ -27,7 +27,7 @@ def create_fastapi_project(project_name):
         os.path.join(project_name, 'app', 'utils.py'),
         os.path.join(project_name, 'app', 'routers', '__init__.py'),
         os.path.join(project_name, 'tests', '__init__.py'),
-        os.path.join(project_name, 'tests', 'database.py'),
+        os.path.join(project_name, 'tests', 'conftest.py'),
         os.path.join(project_name, '.dockerignore'),
         os.path.join(project_name, 'DockerFile'),
         os.path.join(project_name, 'docker-compose.yml'),
@@ -251,7 +251,7 @@ DATABASE_USERNAME=""
     
     write_out_to_file(filename, code_content)
 
-def fill_in_tests_database_file():
+def fill_in_tests_conftest_file():
     code_content="""from fastapi.testclient import TestClient
 import pytest
 from app.main import app
@@ -309,6 +309,6 @@ fill_in_config_file()
 fill_in_ouath2_file()
 fill_in_utils_file()
 fill_in_env_file()
-fill_in_tests_database_file()
+fill_in_tests_conftest_file()
 
 print("Files have been pre-populated with standard content")
